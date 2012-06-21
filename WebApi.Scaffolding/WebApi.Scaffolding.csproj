@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6C9196F3-A639-4F66-949D-A1128F43E8FE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>WebApi.Scaffolding</RootNamespace>
+    <AssemblyName>WebApi.Scaffolding</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="install.ps1" />
+    <None Include="Scaffolders\ApiController\ApiController.ps1" />
+    <None Include="Scaffolders\ApiController\ApiControllerTemplate.cs.t4" />
+    <None Include="Scaffolders\ApiController\WebApiWithRepositoryTemplate.cs.t4" />
+    <None Include="WebApiScaffolding.nuspec">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="InstallationDummyFile.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+    <CallTarget Targets="PackageStaging" Condition=" '$(Configuration)' != 'Debug' ">
+    </CallTarget>
+  </Target>
+  <Target Name="PackageStaging">
+    <PropertyGroup>
+      <PackageStagingExeDir>$(SolutionDir)packages\NuGet.CommandLine.1.8.40002\tools</PackageStagingExeDir>
+      <PackageDir>$(SolutionDir)\WebApi.Scaffolding</PackageDir>
+      <!--<PackageLibDir>$(PackageDir)\lib\net40</PackageLibDir>-->
+      <NuspecFile>$(PackageDir)\WebApiScaffolding.nuspec</NuspecFile>
+      <!-- 
+          Below is a result of a defect in NuGet 1.6 where a trailing backslash escapes a closing quote. 
+          Quotes are needed to ensure team build names don't break paths. 
+        -->
+      <CleanTargetDir>$(TargetDir.TrimEnd('\'))</CleanTargetDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <PackageStagingLibFiles Include="$(OutDir)\$(TargetName).dll;$(OutDir)\$(TargetName).pdb;$(ProjectDir)\bindocs\$(Configuration)\$(TargetName).XML;" />
+    </ItemGroup>
+    <!--<Copy SourceFiles="@(PackageStagingLibFiles)" DestinationFiles="@(PackageStagingLibFiles->'$(PackageLibDir)\%(RecursiveDir)%(Filename)%(Extension)')" />-->
+    <Exec WorkingDirectory="$(PackageDir)" Command="&quot;$(PackageStagingExeDir)\NuGet.exe&quot; pack &quot;$(NuspecFile)&quot; -OutputDirectory &quot;$(CleanTargetDir)&quot;" />
+  </Target>
+</Project>
